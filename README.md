@@ -115,6 +115,15 @@ For Nginx/Apache virtual hosts, HTTPS, Supervisor and cron see **[docs/DEPLOYMEN
 6. Queue worker: keep `php artisan queue:work` running in a terminal (or set `QUEUE_CONNECTION=sync` for small installs).
 7. Scheduler: create a Windows Task Scheduler task running every minute: `C:\xampp\php\php.exe C:\xampp\htdocs\autoshop\artisan schedule:run`.
 
+### Troubleshooting: `1071 Specified key was too long; max key length is 1000 bytes`
+Your MySQL server's default storage engine is **MyISAM** (common on WAMP/XAMPP). The app forces InnoDB via `DB_ENGINE=InnoDB` (default in `config/database.php`), so pull the latest code, make sure `.env` does not set `DB_ENGINE=MyISAM`, then rebuild the half-created tables:
+```bash
+php artisan config:clear
+php artisan migrate:fresh --seed
+php artisan autoshop:create-admin
+```
+Optionally make InnoDB the server default in `my.ini` (`[mysqld]` → `default-storage-engine=InnoDB`) and restart MySQL.
+
 ## First login & initial setup
 
 1. Sign in with the account created by `autoshop:create-admin` (there is **no** default password).
