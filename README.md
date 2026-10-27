@@ -169,6 +169,7 @@ DB_CONNECTION=mysql DB_DATABASE=autoshop_test php artisan test   # against MySQL
 ## Documentation index
 
 * [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — system architecture, data-flow rules, **database relationship design (ER diagram)**, folder structure, implementation phases
+* [docs/SHARED_HOSTING_NAMECHEAP.md](docs/SHARED_HOSTING_NAMECHEAP.md) — step-by-step Namecheap / cPanel shared hosting setup
 * [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — production deployment (Nginx/Apache, HTTPS, Supervisor, cron, hardening, backup & restore, upgrades)
 * [docs/API.md](docs/API.md) — REST API v1 reference
 * [docs/REQUIREMENTS_CHECKLIST.md](docs/REQUIREMENTS_CHECKLIST.md) — every requirement of the specification mapped to its implementation

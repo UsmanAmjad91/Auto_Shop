@@ -199,6 +199,10 @@ return [
         ],
     ],
 
+    // Shared hosting (no Supervisor): let the every-minute scheduler cron also
+    // process queued emails/notifications. Set QUEUE_VIA_SCHEDULER=true in .env.
+    'queue_via_scheduler' => (bool) env('QUEUE_VIA_SCHEDULER', false),
+
     // Roles that may never be deleted or have permissions removed.
     'protected_roles' => ['Super Administrator'],
 
