@@ -53,10 +53,15 @@ Log in at **Namecheap → Hosting List → Go to cPanel**.
 mv ~/public_html ~/public_html_old          # keep a backup of anything that was there
 ln -s ~/autoshop/public ~/public_html
 ```
-No SSH? As a fallback, copy the **contents** of `autoshop/public` into `public_html`, then edit `public_html/index.php` and change the two paths
-`__DIR__.'/../vendor/autoload.php'` → `__DIR__.'/../autoshop/vendor/autoload.php'` and
-`__DIR__.'/../bootstrap/app.php'` → `__DIR__.'/../autoshop/bootstrap/app.php'`.
-Repeat this copy after every update.
+No SSH? Upload the **whole project into `public_html`** instead (so `public_html/artisan`, `public_html/public/…`). The project ships a root **`.htaccess`** that forwards every request to `/public` and blocks `.env`, `artisan`, `composer.*`, `vendor/`, `storage/` and other private files. Set `APP_URL` correctly so links never contain `/public`. Make sure *Show Hidden Files* is on in File Manager so both `.htaccess` files get uploaded.
+
+### The `.htaccess` files
+| File | Used when | What it does |
+|---|---|---|
+| `public/.htaccess` | always | Front-controller routing, **force HTTPS** (skipped on localhost/WAMP), blocks hidden files, keeps API `Authorization` headers, refuses scripts inside `storage/`, security headers, long caching for `/build` assets, gzip |
+| `.htaccess` (project root) | only if the whole project sits inside the web root | Sends everything to `/public`, denies sensitive project files |
+
+Want `www.` redirected to the bare domain? Uncomment the three marked lines in `public/.htaccess`.
 
 ## 5. Configure and install (SSH)
 Enable SSH: cPanel → **SSH Access** → *Manage SSH Keys* (or ask Namecheap support to enable shell access). Namecheap uses **port 21098**:

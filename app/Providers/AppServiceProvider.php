@@ -11,6 +11,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -27,6 +28,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useBootstrapFive();
+
+        // Shared hosting: always build links from APP_URL (no "/public" in URLs, https behind proxies).
+        if ($this->app->isProduction() && config('app.url')) {
+            URL::forceRootUrl(rtrim(config('app.url'), '/'));
+            if (str_starts_with(config('app.url'), 'https://')) {
+                URL::forceScheme('https');
+            }
+        }
 
         // utf8mb4 indexes stay within key-length limits on older MySQL / MariaDB servers.
         Schema::defaultStringLength(191);

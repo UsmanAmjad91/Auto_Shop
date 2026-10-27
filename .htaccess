@@ -1,0 +1,30 @@
+# ---------------------------------------------------------------------------
+# AutoShop Manager — project-root .htaccess
+#
+# Only used when the WHOLE project was uploaded into the web root
+# (e.g. everything inside public_html). It sends all traffic to /public and
+# keeps .env, vendor/, storage/, app/ … unreachable from the browser.
+# Recommended setup is still to point the domain's document root to /public,
+# in which case this file is never read.
+# ---------------------------------------------------------------------------
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Allow Let's Encrypt / AutoSSL validation files
+    RewriteRule ^\.well-known/ - [L]
+
+    # Block hidden files and sensitive project files outright
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule ^(artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|vite\.config\.js|README\.md)$ - [F,L,NC]
+
+    # Everything else is served from /public
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Fallback when mod_rewrite is unavailable: deny the sensitive files directly
+<FilesMatch "^(\.env.*|artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml)$">
+    Require all denied
+</FilesMatch>
