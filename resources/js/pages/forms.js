@@ -1,5 +1,5 @@
 import { api, toast, handleError, fmtMoney, esc } from '../core/http';
-import { initSelects } from '../core/selects';
+import { initSelects, openQuickCreate } from '../core/selects';
 import { renderChart } from './dashboard';
 
 const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
@@ -105,6 +105,11 @@ function initPurchaseOrderForm() {
     JSON.parse(form.dataset.items || '[]').forEach(item => add(item));
     if (!body.querySelector('[data-row]')) add({ quantity_ordered: 1 });
     form.addEventListener('input', recalc);
+    document.getElementById('po-new-part')?.addEventListener('click', () => {
+        const empty = [...body.querySelectorAll('select[data-field="part_id"]')].find(s => !s.value);
+        const sel = empty || add({ quantity_ordered: 1 }).querySelector('select[data-field="part_id"]');
+        openQuickCreate(sel);
+    });
     recalc();
 }
 

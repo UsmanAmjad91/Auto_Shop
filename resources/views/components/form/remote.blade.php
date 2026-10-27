@@ -6,7 +6,10 @@
     $current = old($key, $value);
 @endphp
 @if($col)<div class="{{ $col }}">@endif
-    @if($label)<label for="{{ $id }}" class="form-label {{ $required ? 'required' : '' }}">{{ $label }}</label>@endif
+    @if($label)<div class="d-flex justify-content-between align-items-baseline">
+        <label for="{{ $id }}" class="form-label {{ $required ? 'required' : '' }}">{{ $label }}</label>
+        @if($create)<a href="#" class="small text-decoration-none" data-quick-for="{{ $id }}"><i class="bi bi-plus-circle"></i> New</a>@endif
+    </div>@endif
     <select name="{{ $name }}" id="{{ $id }}" data-remote="{{ $type }}" data-placeholder="{{ $placeholder }}" @if($required) required @endif
         @if($params) data-params='@json($params)' @endif @if($create) data-create="{{ $create }}" @endif @if($depends) data-depends="{{ $depends }}" @endif
         @if($text) data-selected-text="{{ $text }}" @endif

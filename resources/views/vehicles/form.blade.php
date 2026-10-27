@@ -63,7 +63,7 @@
                     <input type="hidden" name="purchase_price" value="{{ $vehicle->purchase_price }}">
                 @endcan
                 <x-form.select name="purchase_source" label="Purchase source" :options="$enums['purchase_sources']" :value="$vehicle->purchase_source" placeholder="—" col="col-md-4" />
-                <x-form.remote name="supplier_id" type="suppliers" label="Supplier / seller" :value="$vehicle->supplier_id" :text="$vehicle->supplier?->name" col="col-md-6" />
+                <x-form.remote name="supplier_id" type="suppliers" label="Supplier / seller" :value="$vehicle->supplier_id" :text="$vehicle->supplier?->name" col="col-md-6" :create="auth()->user()->can('suppliers.create') ? '#quickSupplierModal' : null" />
                 <x-form.select name="condition" label="Condition" :options="$enums['conditions']" :value="$vehicle->condition" placeholder="—" col="col-md-3" />
                 <x-form.input name="location" label="Location" :value="$vehicle->location" col="col-md-3" placeholder="Lot / bay" />
             </div></div>

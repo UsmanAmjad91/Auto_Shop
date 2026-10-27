@@ -117,7 +117,7 @@ class PartController extends Controller
         $data = $request->validated();
         $part = DB::transaction(function () use ($request, $data) {
             $part = new Part(collect($data)->except(['initial_quantity', 'compat', 'images', 'part_number'])->all());
-            $part->part_number = $data['part_number'] ?: NumberGenerator::next('part', settings('general.part_prefix', 'PRT-'), 5);
+            $part->part_number = ($data['part_number'] ?? null) ?: NumberGenerator::next('part', settings('general.part_prefix', 'PRT-'), 5);
             $part->allow_negative_stock = $request->boolean('allow_negative_stock') && $request->user()->can('parts.negative_stock');
             $part->stock_status = 'out_of_stock';
             $part->save();
@@ -130,6 +130,12 @@ class PartController extends Controller
 
             return $part;
         });
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Part created.', 'id' => $part->id, 'text' => $part->name,
+                'sub' => "{$part->part_number} · {$part->quantity_available} available", 'price' => (float) $part->selling_price,
+                'cost' => (float) $part->purchase_cost, 'available' => $part->quantity_available]);
+        }
 
         return redirect()->route('parts.show', $part)->with('success', 'Part created.');
     }

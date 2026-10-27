@@ -62,7 +62,7 @@ class SupplierController extends Controller
         $supplier->save();
 
         return $request->expectsJson()
-            ? response()->json(['id' => $supplier->id, 'text' => $supplier->name])
+            ? response()->json(['message' => 'Supplier created.', 'id' => $supplier->id, 'text' => $supplier->name, 'sub' => $supplier->contact_person])
             : redirect()->route('suppliers.show', $supplier)->with('success', 'Supplier created.');
     }
 

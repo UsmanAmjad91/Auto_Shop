@@ -37,7 +37,7 @@
             </div>
 
             <div class="card mb-3"><div class="card-header">Purchasing & warranty</div><div class="card-body row g-3">
-                <x-form.remote name="supplier_id" type="suppliers" label="Supplier" :value="$part->supplier_id" :text="$part->supplier?->name" col="col-md-6" />
+                <x-form.remote name="supplier_id" type="suppliers" label="Supplier" :value="$part->supplier_id" :text="$part->supplier?->name" col="col-md-6" :create="auth()->user()->can('suppliers.create') ? '#quickSupplierModal' : null" />
                 <x-form.input name="purchase_date" type="date" label="Purchase date" :value="$part->purchase_date" col="col-md-3" />
                 <x-form.input name="purchase_invoice" label="Purchase invoice #" :value="$part->purchase_invoice" col="col-md-3" />
                 <x-form.input name="warranty_months" type="number" min="0" label="Warranty (months)" :value="$part->warranty_months" col="col-md-3" />

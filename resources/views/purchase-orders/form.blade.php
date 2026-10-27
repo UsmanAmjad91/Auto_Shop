@@ -5,19 +5,25 @@
 <form method="POST" action="{{ $po->exists ? route('purchase-orders.update', $po) : route('purchase-orders.store') }}" id="po-form" data-items='@json(old('items', $items))'>
     @csrf @if($po->exists) @method('PUT') @endif
     <div class="card mb-3"><div class="card-body row g-3">
-        <x-form.remote name="supplier_id" type="suppliers" label="Supplier" :value="$po->supplier_id" :text="$po->supplier?->name" required col="col-md-4" />
+        <x-form.remote name="supplier_id" type="suppliers" label="Supplier" :value="$po->supplier_id" :text="$po->supplier?->name" required col="col-md-4"
+            :create="auth()->user()->can('suppliers.create') ? '#quickSupplierModal' : null" placeholder="Search suppliers or add a new one…" />
         <x-form.select name="location_id" label="Receive into" :options="$locations" :value="$po->location_id" required col="col-md-2" />
         <x-form.input name="order_date" type="date" label="Order date" :value="$po->order_date" required col="col-md-2" />
         <x-form.input name="expected_date" type="date" label="Expected" :value="$po->expected_date" col="col-md-2" />
         <x-form.input name="due_date" type="date" label="Payment due" :value="$po->due_date" col="col-md-2" />
         <x-form.input name="supplier_invoice_number" label="Supplier invoice #" :value="$po->supplier_invoice_number" col="col-md-4" />
     </div></div>
-    <div class="card mb-3"><div class="card-header d-flex justify-content-between">Items <button type="button" class="btn btn-sm btn-outline-primary" data-add-row="#po-item-tpl"><i class="bi bi-plus"></i> Add item</button></div>
+    <div class="card mb-3"><div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center"><span>Items</span>
+        <span class="d-flex gap-2">
+            @can('parts.create')<button type="button" class="btn btn-sm btn-outline-secondary" id="po-new-part"><i class="bi bi-box-seam"></i> New part</button>@endcan
+            <button type="button" class="btn btn-sm btn-outline-primary" data-add-row="#po-item-tpl"><i class="bi bi-plus"></i> Add item</button>
+        </span></div>
+        <div class="px-3 pt-2 small text-secondary">Pick an existing part in each row (search by name, part #, OEM or SKU). New part? Type its name and choose <strong>Add…</strong>, or click <strong>New part</strong>.</div>
         <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th style="min-width:280px">Part</th><th style="width:120px">Qty</th><th style="width:160px">Unit cost</th><th class="text-end">Line total</th><th></th></tr></thead>
             <tbody id="po-items" data-repeater data-template="#po-item-tpl"></tbody></table></div>
     </div>
     <template id="po-item-tpl"><tr data-row>
-        <td><select name="items[__i__][part_id]" data-field="part_id" data-remote="parts" class="form-select" required></select></td>
+        <td><select name="items[__i__][part_id]" data-field="part_id" data-remote="parts" data-placeholder="Search parts…" @can('parts.create') data-create="#quickPartModal" @endcan class="form-select" required></select></td>
         <td><input type="number" name="items[__i__][quantity_ordered]" data-field="quantity_ordered" min="1" class="form-control" required></td>
         <td><input type="number" step="0.01" min="0" name="items[__i__][unit_cost]" data-field="unit_cost" class="form-control" required></td>
         <td class="text-end money line-total"></td><td><button type="button" class="btn btn-sm btn-link text-danger" data-remove-row><i class="bi bi-x-lg"></i></button></td></tr></template>

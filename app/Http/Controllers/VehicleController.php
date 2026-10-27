@@ -155,7 +155,7 @@ class VehicleController extends Controller
 
         $vehicle = DB::transaction(function () use ($request, $data) {
             $vehicle = new Vehicle($this->fillable($data));
-            $vehicle->stock_number = $data['stock_number'] ?: NumberGenerator::next('stock', settings('general.stock_prefix', 'STK-'), 5);
+            $vehicle->stock_number = ($data['stock_number'] ?? null) ?: NumberGenerator::next('stock', settings('general.stock_prefix', 'STK-'), 5);
             $vehicle->repair_status = $data['repair_status'] ?? 'not_started';
             $vehicle->inventory_status = $data['inventory_status'] ?? 'available';
             $vehicle->purchase_price = $request->user()->can('vehicles.view_costs') ? ($data['purchase_price'] ?? 0) : 0;
@@ -557,7 +557,7 @@ class VehicleController extends Controller
             }
             DB::transaction(function () use ($data, $request, &$created) {
                 $vehicle = new Vehicle(collect($data)->except(['stock_number', 'purchase_price'])->all());
-                $vehicle->stock_number = $data['stock_number'] ?: NumberGenerator::next('stock', settings('general.stock_prefix', 'STK-'), 5);
+                $vehicle->stock_number = ($data['stock_number'] ?? null) ?: NumberGenerator::next('stock', settings('general.stock_prefix', 'STK-'), 5);
                 $vehicle->purchase_price = $data['purchase_price'] ?? 0;
                 $vehicle->created_by = $request->user()->id;
                 $vehicle->save();

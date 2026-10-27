@@ -68,6 +68,43 @@
         </form>
     </x-modal>
 @endcan
+@can('suppliers.create')
+    <x-modal id="quickSupplierModal" title="Quick add supplier">
+        <form method="POST" action="{{ route('suppliers.store') }}" data-ajax data-reset data-redirect="false">
+            @csrf
+            <input type="hidden" name="is_active" value="1">
+            <div class="row g-2">
+                <x-form.input name="name" label="Supplier name" required col="col-12" id="qs-name" />
+                <x-form.input name="contact_person" label="Contact person" col="col-6" id="qs-contact" />
+                <x-form.input name="phone" label="Phone" col="col-6" id="qs-phone" />
+                <x-form.input name="email" label="Email" type="email" col="col-12" id="qs-email" />
+            </div>
+            <div class="form-text">More details can be added later under Suppliers.</div>
+            <div class="text-end mt-3"><button class="btn btn-primary">Save supplier</button></div>
+        </form>
+    </x-modal>
+@endcan
+@can('parts.create')
+    <x-modal id="quickPartModal" title="Quick add part">
+        <form method="POST" action="{{ route('parts.store') }}" data-ajax data-reset data-redirect="false">
+            @csrf
+            <input type="hidden" name="unit" value="pcs">
+            <input type="hidden" name="condition" value="new">
+            <input type="hidden" name="min_stock_level" value="{{ (int) settings('inventory.low_stock_default', 5) }}">
+            <input type="hidden" name="default_location_id" value="{{ \App\Models\StockLocation::where('is_default', true)->value('id') }}">
+            <div class="row g-2">
+                <x-form.input name="name" label="Part name" required col="col-12" id="qp-name" />
+                <x-form.input name="oem_number" label="OEM number" col="col-6" id="qp-oem" />
+                <x-form.input name="sku" label="SKU" col="col-6" id="qp-sku" />
+                <x-form.select name="category_id" label="Category" :options="\App\Models\PartCategory::orderBy('name')->pluck('name', 'id')" placeholder="—" col="col-12" id="qp-category" />
+                <x-form.input name="purchase_cost" type="number" step="0.01" min="0" label="Purchase cost" value="0" required col="col-6" id="qp-cost" />
+                <x-form.input name="selling_price" type="number" step="0.01" min="0" label="Selling price" value="0" required col="col-6" id="qp-price" />
+            </div>
+            <div class="form-text">Stock starts at 0 — it is added when you receive the purchase order.</div>
+            <div class="text-end mt-3"><button class="btn btn-primary">Save part</button></div>
+        </form>
+    </x-modal>
+@endcan
 @stack('modals')
 @stack('scripts')
 </body>

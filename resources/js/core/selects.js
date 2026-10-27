@@ -12,7 +12,7 @@ export function initSelects(root = document) {
         const ts = new TomSelect(sel, {
             valueField: 'id', labelField: 'text', searchField: ['text', 'sub'],
             preload: 'focus', loadThrottle: 300, maxOptions: 50,
-            allowEmptyOption: true, placeholder: sel.dataset.placeholder || 'Search…',
+            allowEmptyOption: false, placeholder: sel.dataset.placeholder || 'Search…',
             create: sel.dataset.create ? createViaModal(sel) : false,
             plugins: sel.multiple ? ['remove_button'] : (sel.required ? [] : ['clear_button']),
             load: async (query, cb) => {
@@ -29,7 +29,7 @@ export function initSelects(root = document) {
             render: {
                 option: (d) => `<div><div>${esc(d.text)}</div>${d.sub ? `<div class="sub">${esc(d.sub)}</div>` : ''}</div>`,
                 item: (d) => `<div>${esc(d.text)}</div>`,
-                no_results: () => '<div class="no-results small p-2 text-secondary">No matches</div>',
+                no_results: () => `<div class="no-results small p-2 text-secondary">No matches${sel.dataset.create ? ' — type a name and choose <strong>Add…</strong>, or use <strong>+ New</strong>' : ''}</div>`,
             },
             onChange(value) {
                 sel.dispatchEvent(new CustomEvent('remote:selected', { detail: value ? this.options[value] : null, bubbles: true }));
@@ -45,19 +45,46 @@ export function initSelects(root = document) {
     }));
 }
 
-/** "Quick add" support: opens the quick-create modal and adds the result. */
+/** "Quick add" support: opens the quick-create modal and hands the created record back. */
 function createViaModal(sel) {
     return (input, callback) => {
         const modalEl = document.querySelector(sel.dataset.create);
         if (!modalEl) return callback();
         const form = modalEl.querySelector('form');
         form.reset();
+        form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         const first = form.querySelector('[name="first_name"], [name="name"]');
-        if (first) first.value = input;
-        const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-        const onSuccess = (e) => { callback(e.detail); form.removeEventListener('ajax:success', onSuccess); };
+        if (first && input) first.value = input;
+        let done = false;
+        const finish = (data) => {
+            if (done) return;
+            done = true;
+            form.removeEventListener('ajax:success', onSuccess);
+            callback(data);
+        };
+        const onSuccess = (e) => finish(e.detail);
         form.addEventListener('ajax:success', onSuccess);
-        modalEl.addEventListener('hidden.bs.modal', () => callback(), { once: true });
-        modal.show();
+        modalEl.addEventListener('hidden.bs.modal', () => finish(), { once: true });
+        window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        setTimeout(() => first?.focus(), 300);
     };
 }
+
+/** Open the quick-create modal for a remote select and select the new record. */
+export function openQuickCreate(sel, input = '') {
+    const ts = sel.tomselect;
+    createViaModal(sel)(input, (data) => {
+        if (!data || !ts) return;
+        ts.addOption(data);
+        ts.addItem(String(data.id));
+    });
+}
+
+// "+ New" links rendered next to remote-select labels.
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-quick-for]');
+    if (!link) return;
+    e.preventDefault();
+    const sel = document.getElementById(link.dataset.quickFor);
+    if (sel) openQuickCreate(sel);
+});

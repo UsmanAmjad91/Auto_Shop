@@ -114,4 +114,17 @@ class InventoryTest extends TestCase
         $this->assertSame(7, $part->quantity);
         $this->assertSame('Wipers', $part->category->name);
     }
+
+    public function test_quick_create_supplier_and_part_return_json_for_dropdowns(): void
+    {
+        $admin = $this->admin();
+        $this->actingAs($admin)->postJson(route('suppliers.store'), ['name' => 'Metro Auto Parts', 'is_active' => 1])
+            ->assertOk()->assertJsonPath('text', 'Metro Auto Parts');
+
+        // quick form sends no part_number: it must be generated, not fail
+        $res = $this->actingAs($admin)->postJson(route('parts.store'), ['name' => 'Brake Pads', 'purchase_cost' => 35, 'selling_price' => 89,
+            'min_stock_level' => 5, 'unit' => 'pcs', 'condition' => 'new'])->assertOk();
+        $res->assertJsonPath('text', 'Brake Pads')->assertJsonPath('cost', 35);
+        $this->assertStringStartsWith('PRT-', Part::find($res->json('id'))->part_number);
+    }
 }
